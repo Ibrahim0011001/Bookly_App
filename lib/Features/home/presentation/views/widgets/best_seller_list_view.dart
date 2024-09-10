@@ -1,6 +1,7 @@
-import 'package:bokklyapp/core/utlis/app_router.dart';
+import 'package:bokklyapp/Features/home/presentation/manger/newest_books_cubit/cubit/newest_books_cubit.dart';
+import 'package:bokklyapp/core/widgets/custom_error_satate.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'best_seller_list_view_item.dart';
 
@@ -9,22 +10,29 @@ class BestListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        GoRouter.of(context).push(AppRouter.kBookDetailsView);
-      },
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        itemCount: 10,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10.0),
-            child: BestSellerListViewItem(),
+    return BlocBuilder<NewestBooksCubit, NewestBooksState>(
+      builder: (context, state) {
+        if (state is NewestBooksSuccess) {
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: state.books.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: BestSellerListViewItem(
+                  bookModel: state.books[index],
+                ),
+              );
+            },
           );
-        },
-      ),
+        } else if (state is NewestBooksFailure) {
+          return const CustomErrorSatate();
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
     );
   }
 }
